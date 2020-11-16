@@ -1,0 +1,9 @@
+$color-brand: red;
+/* 引入 Taro UI 默认样式 */
+$color-border-base: red !default;
+@import "~taro-ui/dist/style/index.scss";
+.container{
+    width: 100%;
+    overflow: hidden;
+    flex-direction: column;
+}

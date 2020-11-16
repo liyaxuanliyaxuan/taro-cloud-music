@@ -1,0 +1,32 @@
+.selected-list{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: middle;
+    height: 50px;
+    margin-top: 10px;
+    overflow: hidden;
+    .title{
+        display: block;  
+        flex: 0 0 auto;
+        padding: 5px 0;
+        margin-right: 5px;
+        color: grey;
+        vertical-align: middle;
+       
+    }
+  
+        .bar-item{
+            flex: 0 0 auto;
+            padding: 5px 8px;
+            border-radius: 10px;
+            
+        }
+        .selected-item{
+           
+            border: 1px solid red;
+            opacity: 0.8;
+        }
+    
+
+}
