@@ -1,8 +1,12 @@
 
-import Taro, { Component, Config, useEffect, useState, useLayoutEffect, useMemo } from '@tarojs/taro'
-import { View, Button, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
+import Taro, {
+  Component, Config,
+  useLayoutEffect
+  useEffect, useState, useRef, useMemo
+} from '@tarojs/taro'
+import { View, Button, Text, MovableArea, MovableView, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-import { isEmptyObject } from '../../utils'
+
 
 import { AtButton, AtProgress } from "taro-ui"
 
@@ -16,7 +20,8 @@ import * as playlistActionTypes from '../../actions/playlist'
 function mapStateToProps(state) {
   return {
     song: state.playerReducer.song,
-    playlist: state.playlistReducer.playlist
+    playlist: state.playlistReducer.playlist,
+    songInfo: state.playerReducer.songInfo
   }
 }
 
@@ -27,6 +32,9 @@ function mapDispatchToProps(dispatch) {
     },
     getLyric(id) {
       dispatch(playerActionTypes.getLyric(id))
+    },
+    getSongInfo(id) {
+      dispatch(playerActionTypes.getSongInfo(id))
     }
   }
 }
@@ -36,48 +44,84 @@ function mapDispatchToProps(dispatch) {
 
 function Player(props) {
 
-  const { song, playlist } = { ...props }
-  const { getSong, getLyric } = { ...props }
+  const { song, playlist, songInfo } = { ...props }
+  const { getSong, getLyric, getSongInfo } = { ...props }
 
-
-  const songInfo = isEmptyObject(playlist) ? null : playlist.tracks.find(item => item.id == song.id)
+  //在上级页面取得音频和info
+  // const songInfo = isEmptyObject(playlist) ? null : playlist.tracks.find(item => item.id == song.id)
 
   const [playState, setPlayState] = useState('paused')
   const [percent, setPercent] = useState(0)
-  const audio = useMemo(()=>{
-    return Audio({ url: song.url, playcb: () => { console.log(song.url) } })
+  const [leftOffset, setLeftOffset] = useState(0)
+  const progressRef = useRef()
+  const audio = useMemo(() => {
+    return Audio({
+      url: song.url,
+      playcb: () => { console.log(song.url) }
+
+    })
   }, [song])
+  const progressWidth = useMemo(() =>{
+    const res = Taro.getSystemInfoSync()
+ 
+    console.log(res.screenWidth)
+    return  res.screenWidth * 0.8
+
+  },[song])
 
   useEffect(() => {
     song.id && getLyric(song.id)
+
+    
+      audio.onTimeUpdate(() => {
+
+        let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
+     
+        setPercent(newPercent)
+        setLeftOffset(progressWidth*newPercent/100)
+      })
+ 
+
+
     console.log(songInfo);
-    console.log(audio.startTime);
-    console.log(audio.duration)
-    console.log(audio.currentTime);
     console.log(audio);
 
-    return ()=>{
+    return () => {
       console.log('destroy');
       audio && audio.destroy()
     }
   }, [song])
+  useLayoutEffect(() => {
+    console.log(progressRef.current);
+   
+  }, [])
 
-  useEffect(()=>{
-    // console.log('change')
-    // setPercent(Math.floor(Number(audio.currentTime)*1000/(song.dt)*100))
-    
-  },[audio.currentTime])
-
-  const handlePaused = ()=>{
-    if(playState == 'paused'){
-      console.log(audio.currentTime);
-      audio.play()
+  const handlePaused = () => {
+    if (playState == 'paused') {
+      console.log(audio.currentTime)
+      setTimeout(() => {
+        audio.play()
+      }, 1000)
       setPlayState('play')
-    }else if(playState == 'play'){
+    } else if (playState == 'play') {
       audio.pause()
       setPlayState('paused')
     }
   }
+
+  const handleMove = (e) => {
+    console.log(e)
+    //进度条
+    //setPercent()
+    //音频进度
+
+    //audio.seek(Number(audio.duration)*(Number(e.detail.x)/progressWidth))
+
+ 
+    
+
+  }
+
 
 
 
@@ -97,18 +141,35 @@ function Player(props) {
       <View className='bottom'>
         <View className='player-area'>
           <View className='progress-area'>
-            <AtProgress 
-            className='progress'
-          
-            percent={percent} 
-            isHidePercent={true}
-            strokeWidth={4}/>
+
+            <MovableArea
+
+              className='progress-wrapper'>
+              <MovableView
+                onChange={handleMove}
+                x={leftOffset}
+                className='move-circle'
+
+                direction='horizontal'>
+
+              </MovableView>
+              <AtProgress
+
+                className='progress'
+                color="#FF4949"
+                percent={percent}
+                isHidePercent={true}
+                strokeWidth={4} />
+              <View className='hidden-progress' ref={progressRef}></View>
+
+            </MovableArea>
+
           </View>
           <View className='btn-area'>
             <Text className='iconfont prev'>&#xe655;</Text>
-            {playState == 'paused'?<Text className='iconfont play' onClick={handlePaused}>&#xe80f;</Text>:
-            <Text className='iconfont paused' onClick={handlePaused}>&#xe7d2;</Text>}
-            
+            {playState == 'paused' ? <Text className='iconfont play' onClick={handlePaused}>&#xe80f;</Text> :
+              <Text className='iconfont paused' onClick={handlePaused}>&#xe7d2;</Text>}
+
             <Text className='iconfont next'>&#xe654;</Text>
           </View>
         </View>

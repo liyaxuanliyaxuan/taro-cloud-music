@@ -6,7 +6,7 @@ import { connect } from '@tarojs/redux'
 import { AtButton } from "taro-ui"
 
 import './index.scss'
-
+import { getSongDetailRequest } from '../../api/service'
 
 import * as introduceActionTypes from '../../actions/introduce'
 import * as playerActionTypes from '../../actions/player'
@@ -23,7 +23,11 @@ function mapDispatchToProps(dispatch) {
   return {
     getSong(id){
       dispatch(playerActionTypes.getSong(id))
+    },
+    getSongInfo(id) {
+      dispatch(playerActionTypes.getSongInfo(id))
     }
+
   }
 }
 
@@ -33,16 +37,17 @@ function mapDispatchToProps(dispatch) {
 function Introduce(props) {
 
   const { artist, hotSongs } = { ...props }
-  const { getSong } = {...props }
+  const { getSong, getSongInfo } = {...props }
 
 
 
   useEffect(() => {
-
+    getSongDetailRequest(347230).then(res=>console.log(res))
   }, [])
 
   const enterSong = id =>{
     getSong(id)
+    getSongInfo(id)
     Taro.navigateTo({
       url:`/pages/player/index`
     })

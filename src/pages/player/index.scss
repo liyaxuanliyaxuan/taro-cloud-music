@@ -61,39 +61,81 @@
     height: 200px;
 
     .player-area {
-        width: 100%;
-        .btn-area{
-            display: flex;
-            align-items: center;
-            font-size: 40px;
-            justify-content: center;
-            
-            .prev{
-                font-size: 40px;
+      width: 100%;
 
-            }
-            .play{
-                font-size: 40px;
-                margin-left: 20vw;
-                margin-right: 20vw;
-            }
-            .next{
-                font-size: 40px;
-            }
-            .paused{
-                font-size: 40px;
-                margin-left: 20vw;
-                margin-right: 20vw;
-            }
+      .btn-area {
+        display: flex;
+        align-items: center;
+        font-size: 40px;
+        justify-content: center;
+
+        .prev {
+          font-size: 40px;
+
         }
-        .progress-area{
-          
-            .progress{
-                width: 80%;
-                margin: auto;
-                margin-bottom: 40px;
-            }
+
+        .play {
+          font-size: 40px;
+          margin-left: 20vw;
+          margin-right: 20vw;
         }
+
+        .next {
+          font-size: 40px;
+        }
+
+        .paused {
+          font-size: 40px;
+          margin-left: 20vw;
+          margin-right: 20vw;
+        }
+      }
+
+      .progress-area {
+        .progress-wrapper {
+          width: 80%;
+          margin: auto;
+
+
+          .progress {
+            width: 100%;
+            margin: auto;
+            box-sizing: border-box;
+            transform: translateY(50%);
+            -webkit-transform: translateY(50%);
+            -moz-transform: translateY(50%);
+            -ms-transform: translateY(50%);
+            -o-transform: translateY(50%);
+            z-index: -10;
+          }
+
+          .hidden-progress {
+            width: 100%;
+            box-sizing: border-box;
+            height: 1px;
+          }
+
+          .move-circle {
+            font-size: 10px;
+            position: absolute;
+            z-index: 10;
+            color: #FF4949;
+            background: #FF4949;
+            box-sizing: border-box;
+            border: solid;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            -ms-border-radius: 50%;
+            -o-border-radius: 50%;
+
+          }
+        }
+
+        margin-bottom: 40px;
+      }
     }
   }
 }

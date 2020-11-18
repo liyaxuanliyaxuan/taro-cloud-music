@@ -1,10 +1,9 @@
 
 import Taro, { Component, Config, useEffect, useState, useLayoutEffect } from '@tarojs/taro'
-import { View, Button, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
+import { View,  Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 
-import { AtButton, AtGrid  } from "taro-ui"
 
 import './index.scss'
 
@@ -23,6 +22,9 @@ function mapDispatchToProps(dispatch){
   return {
     getSong(id){
       dispatch(playerActionTypes.getSong(id))
+    },
+    getSongInfo(id) {
+      dispatch(playerActionTypes.getSongInfo(id))
     }
   }
 }
@@ -33,7 +35,7 @@ function mapDispatchToProps(dispatch){
 function PlayList (props) {
   
   const {playlist, song} = {...props}
-  const {getSong} = {...props}
+  const {getSong, getSongInfo} = {...props}
 
 
 
@@ -43,6 +45,7 @@ useEffect(()=>{
 
 const enterSong = (id)=>{
   getSong(id)
+  getSongInfo(id)
   Taro.navigateTo({
     url:'/pages/player/index'
   })
@@ -54,16 +57,14 @@ const enterSong = (id)=>{
     return (
       <View className='container'>
         <View className='banner'>
-          <Image className='banner-bg' src={playlist.coverImgUrl}/>
-          
+          <Image className='banner-bg' src={playlist.coverImgUrl}/>          
           <View className='info-area'>
           <View className='cover-wrapper'>
             <Image src={playlist.coverImgUrl} className='cover-img'/>
           </View>
           <View className='txt-info'>
           <Text className='info-name'>{playlist.name}</Text>
-            <Text className='info-detail'>{playlist.description}</Text>
-          
+            <Text className='info-detail'>{playlist.description}</Text>          
           </View>
             </View>
         </View>

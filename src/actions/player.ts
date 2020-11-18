@@ -1,10 +1,10 @@
 /*
  * @Date: 2020-11-15 21:46:16
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-16 11:40:56
+ * @LastEditTime: 2020-11-17 13:35:30
  */
 import * as actionTypes from '../constants/player'
-import { getSongRequest, getLyricRequest } from '../api/service'
+import { getSongRequest, getLyricRequest, getSongDetailRequest } from '../api/service'
 
 export const changeSong = (data)=>({
     type:actionTypes.CHANGE_PLAYER,
@@ -33,5 +33,21 @@ export const getLyric = (id)=>{
                 dispatch(changeLyric(data))
             }
         ).catch(err=>console.log(err))
+    }
+}
+
+export const changeSongInfo = (data)=>({
+    type: actionTypes.CHANGE_SONGINFO,
+    data
+})
+
+export const getSongInfo = (id)=>{
+    return (dispatch)=>{
+        getSongDetailRequest(id).then(
+            res=>{
+                let data = res.songs[0]
+                dispatch(changeSongInfo(data))
+            }
+        )
     }
 }
