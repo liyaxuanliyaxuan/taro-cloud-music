@@ -97,23 +97,18 @@
           margin: auto;
 
 
-          .progress {
-            width: 100%;
-            margin: auto;
-            box-sizing: border-box;
-            transform: translateY(50%);
-            -webkit-transform: translateY(50%);
-            -moz-transform: translateY(50%);
-            -ms-transform: translateY(50%);
-            -o-transform: translateY(50%);
-            z-index: -10;
-          }
-
-          .hidden-progress {
-            width: 100%;
-            box-sizing: border-box;
-            height: 1px;
-          }
+            .progress {
+              width: 100%;
+              margin: auto;
+              box-sizing: border-box;
+              transform: translateY(50%);
+              -webkit-transform: translateY(50%);
+              -moz-transform: translateY(50%);
+              -ms-transform: translateY(50%);
+              -o-transform: translateY(50%);
+              z-index: -10;
+            }
+          
 
           .move-circle {
             font-size: 10px;

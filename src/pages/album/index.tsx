@@ -1,5 +1,5 @@
 import { ComponentClass } from 'react'
-import Taro, { Component, Config, useEffect, useState } from '@tarojs/taro'
+import Taro, { Component, Config, useEffect, useState, useDidShow } from '@tarojs/taro'
 import { View, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
@@ -7,6 +7,8 @@ import { AtButton } from 'taro-ui'
 import './index.scss'
 import { OfficialList} from '../../components/officialList'
 import { GlobalList } from '../../components/globalList'
+
+
 
 import { filterIdx, filterIndex } from '../../utils'
 
@@ -42,6 +44,7 @@ function Album(props) {
 
   const [officialList, setOfficialList] = useState()
   const [globalList, setGolbalList] = useState()
+  const [showPlayer, setShowPlayer] = useState()
 
   useEffect(() => {
     getRankList()
@@ -49,6 +52,10 @@ function Album(props) {
     setOfficialList(rankList.slice(0, globalStartIndex))
     setGolbalList(rankList.slice(globalStartIndex))
   }, [rankList.length])
+
+  useDidShow(()=>{
+    setShowPlayer(true)
+  })
 
   const enterDetail = (id)=>{
     console.log(id);
@@ -69,6 +76,7 @@ function Album(props) {
       <Text className='rank-title'>全球榜</Text>
       <GlobalList list={globalList} handleClick={enterDetail}/>
     </View>
+   
 
   </View>
   )

@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-11-15 21:46:16
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-17 13:35:30
+ * @LastEditTime: 2020-11-19 19:13:56
  */
 import * as actionTypes from '../constants/player'
 import { getSongRequest, getLyricRequest, getSongDetailRequest } from '../api/service'
@@ -51,3 +51,8 @@ export const getSongInfo = (id)=>{
         )
     }
 }
+
+export const changeAudio = (data)=>({
+    type: actionTypes.CHANGE_AUDIO,
+    data
+})

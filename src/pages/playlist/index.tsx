@@ -1,6 +1,6 @@
 
 import Taro, { Component, Config, useEffect, useState, useLayoutEffect } from '@tarojs/taro'
-import { View,  Text, Swiper, SwiperItem, Image } from '@tarojs/components'
+import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 
@@ -11,16 +11,16 @@ import './index.scss'
 import * as playListActionTypes from '../../actions/playlist'
 import * as playerActionTypes from '../../actions/player'
 
-function mapStateToProps(state){
+function mapStateToProps(state) {
   return {
     playlist: state.playlistReducer.playlist,
     song: state.playerReducer.song
   }
 }
 
-function mapDispatchToProps(dispatch){
+function mapDispatchToProps(dispatch) {
   return {
-    getSong(id){
+    getSong(id) {
       dispatch(playerActionTypes.getSong(id))
     },
     getSongInfo(id) {
@@ -32,66 +32,72 @@ function mapDispatchToProps(dispatch){
 
 
 
-function PlayList (props) {
-  
-  const {playlist, song} = {...props}
-  const {getSong, getSongInfo} = {...props}
+function PlayList(props) {
+
+  const { playlist, song } = { ...props }
+  const { getSong, getSongInfo } = { ...props }
+
+  const [curId, setCurId] = useState()
 
 
 
-useEffect(()=>{
-  console.log(playlist);
-},[])
+  useEffect(() => {
+    console.log(playlist);
+  }, [])
 
-const enterSong = (id)=>{
-  getSong(id)
-  getSongInfo(id)
-  Taro.navigateTo({
-    url:'/pages/player/index'
-  })
-}
+  const enterSong = (id) => {
+    if (!curId || curId == id) {
+      setCurId(id)
+      getSong(id)
+      getSongInfo(id)
+      
+    }Taro.navigateTo({
+        url: '/pages/player/index'
+      })
 
- 
+  }
 
 
-    return (
-      <View className='container'>
-        <View className='banner'>
-          <Image className='banner-bg' src={playlist.coverImgUrl}/>          
-          <View className='info-area'>
+
+
+  return (
+    <View className='container'>
+      <View className='banner'>
+        <Image className='banner-bg' src={playlist.coverImgUrl} />
+        <View className='info-area'>
           <View className='cover-wrapper'>
-            <Image src={playlist.coverImgUrl} className='cover-img'/>
+            <Image src={playlist.coverImgUrl} className='cover-img' />
           </View>
           <View className='txt-info'>
-          <Text className='info-name'>{playlist.name}</Text>
-            <Text className='info-detail'>{playlist.description}</Text>          
+            <Text className='info-name'>{playlist.name}</Text>
+            <Text className='info-detail'>{playlist.description}</Text>
           </View>
-            </View>
         </View>
-        {/* <View className='playlist-btn'></View> */}
-        <View className='list-area'>
-        {
-         playlist && playlist.tracks && playlist.tracks.map(item=>{
-           return(
-             <View 
-             className='song-item' 
-             onClick={()=>enterSong(item.id)}>
-               <Text className='item-name'>{item.name}</Text>
-             </View>
-           )
-         })
-       }
-        </View>     
       </View>
-    )
-  
+      {/* <View className='playlist-btn'></View> */}
+      <View className='list-area'>
+        {
+          playlist && playlist.tracks && playlist.tracks.map(item => {
+            return (
+              <View
+                className='song-item'
+                onClick={() => enterSong(item.id)}>
+                <Text className='item-name'>{item.name}</Text>
+              </View>
+            )
+          })
+        }
+      </View>
+    </View>
+  )
+
 }
 
 PlayList.config = {
 
-    navigationBarTitleText: '歌单详情',
-    navigationBarTextStyle: 'white',
-  
+  navigationBarTitleText: '歌单详情',
+  navigationBarTextStyle: 'white',
+
 }
 
 

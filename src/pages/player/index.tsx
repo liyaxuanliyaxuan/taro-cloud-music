@@ -1,8 +1,8 @@
 
 import Taro, {
   Component, Config,
-  useLayoutEffect
-  useEffect, useState, useRef, useMemo
+  useLayoutEffect,
+  useEffect, useState, useRef, useMemo, useDidShow, useRouter
 } from '@tarojs/taro'
 import { View, Button, Text, MovableArea, MovableView, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
@@ -21,7 +21,8 @@ function mapStateToProps(state) {
   return {
     song: state.playerReducer.song,
     playlist: state.playlistReducer.playlist,
-    songInfo: state.playerReducer.songInfo
+    songInfo: state.playerReducer.songInfo,
+   
   }
 }
 
@@ -35,17 +36,20 @@ function mapDispatchToProps(dispatch) {
     },
     getSongInfo(id) {
       dispatch(playerActionTypes.getSongInfo(id))
+    },
+    changeAudio(data) {
+      dispatch(playerActionTypes.changeAudio(data))
     }
   }
 }
 
-
+//停止和切歌才会进行destroy
 
 
 function Player(props) {
 
   const { song, playlist, songInfo } = { ...props }
-  const { getSong, getLyric, getSongInfo } = { ...props }
+  const { getSong, getLyric, getSongInfo, changeAudio } = { ...props }
 
   //在上级页面取得音频和info
   // const songInfo = isEmptyObject(playlist) ? null : playlist.tracks.find(item => item.id == song.id)
@@ -55,45 +59,68 @@ function Player(props) {
   const [leftOffset, setLeftOffset] = useState(0)
   const progressRef = useRef()
   const audio = useMemo(() => {
-    return Audio({
+   let src = Audio({
       url: song.url,
       playcb: () => { console.log(song.url) }
-
     })
+    Taro.$audio = src
+    return src
   }, [song])
-  const progressWidth = useMemo(() =>{
-    const res = Taro.getSystemInfoSync()
- 
-    console.log(res.screenWidth)
-    return  res.screenWidth * 0.8
 
-  },[song])
+  //进入页面之后 song作为一个prop会进行重渲染
+  //song这个对象全部发生改变
+
+  const progressWidth = useMemo(() => {
+    const res = Taro.getSystemInfoSync()
+    return res.screenWidth * 0.8
+
+  }, [song])
 
   useEffect(() => {
     song.id && getLyric(song.id)
 
-    
-      audio.onTimeUpdate(() => {
 
-        let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
-     
-        setPercent(newPercent)
-        setLeftOffset(progressWidth*newPercent/100)
-      })
- 
+    audio.onTimeUpdate(() => {
+      console.log('1')
+      let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
 
+      setPercent(newPercent)
+      setLeftOffset(progressWidth * newPercent / 100)
+    })
 
     console.log(songInfo);
-    console.log(audio);
+   // console.log(audio);
 
-    return () => {
-      console.log('destroy');
-      audio && audio.destroy()
-    }
-  }, [song])
-  useLayoutEffect(() => {
-    console.log(progressRef.current);
+    // return () => {
+    //   console.log('destroy');
+    //   audio && audio.destroy()
+    // }
+  }, [])
+  const ifFromMini  = useRouter().params
+
+  useDidShow(()=>{
+    //页面显示
+    //检测有无音频播放
+    //有音频播放
+    console.log(ifFromMini)
    
+
+    //进度条在相应的位置
+
+    //有无携带参数
+    console.log(audio.currentTime)
+
+    const currentPosition = Taro.$audio.currentTime
+
+
+
+    //当前播放的位置
+    //当前的状态
+  })
+
+  useLayoutEffect(() => {
+    
+
   }, [])
 
   const handlePaused = () => {
@@ -101,7 +128,7 @@ function Player(props) {
       console.log(audio.currentTime)
       setTimeout(() => {
         audio.play()
-      }, 1000)
+      }, 2000)
       setPlayState('play')
     } else if (playState == 'play') {
       audio.pause()
@@ -112,15 +139,32 @@ function Player(props) {
   const handleMove = (e) => {
     console.log(e)
     //进度条
-    //setPercent()
+
     //音频进度
+    //防抖
+    audio.seek(Number(audio.duration) * (Number(e.touches[0].clientX) / progressWidth))
 
-    //audio.seek(Number(audio.duration)*(Number(e.detail.x)/progressWidth))
 
- 
-    
 
   }
+  const handleClick = (e) => {
+    console.log(e)
+    
+    if (playState == 'paused') {
+      console.log(audio.currentTime)
+      setTimeout(() => {
+        audio.play()
+      }, 1000)
+      setPlayState('play')
+    }
+    audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
+    audio.play()
+    //audio.seek()
+    //setOffset()
+
+    setLeftOffset((Number(e.currentTarget.x) / progressWidth)*100)
+  }
+
 
 
 
@@ -143,24 +187,30 @@ function Player(props) {
           <View className='progress-area'>
 
             <MovableArea
-
+            onClick={handleClick}
               className='progress-wrapper'>
               <MovableView
-                onChange={handleMove}
+                onHTouchMove={handleMove}
                 x={leftOffset}
                 className='move-circle'
 
                 direction='horizontal'>
 
               </MovableView>
-              <AtProgress
+              <View 
+              className='progress-click' 
+              >
+                <AtProgress
 
-                className='progress'
-                color="#FF4949"
-                percent={percent}
-                isHidePercent={true}
-                strokeWidth={4} />
-              <View className='hidden-progress' ref={progressRef}></View>
+                  className='progress'
+
+                  color="#FF4949"
+                  percent={percent}
+                  isHidePercent={true}
+                  strokeWidth={4} />
+              </View>
+
+
 
             </MovableArea>
 
