@@ -3,7 +3,7 @@ import Taro, { Component, Config, useEffect, useState, useDidShow } from '@taroj
 import { View, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
-import { AtButton } from 'taro-ui'
+
 import './index.scss'
 import { OfficialList} from '../../components/officialList'
 import { GlobalList } from '../../components/globalList'
@@ -54,7 +54,7 @@ function Album(props) {
   }, [rankList.length])
 
   useDidShow(()=>{
-    setShowPlayer(true)
+
   })
 
   const enterDetail = (id)=>{

@@ -45,13 +45,17 @@ function PlayList(props) {
     console.log(playlist);
   }, [])
 
-  const enterSong = (id) => {
-    if (!curId || curId == id) {
-      setCurId(id)
-      getSong(id)
-      getSongInfo(id)
+  const enterPlayer = (id) => {
+    // if (!curId || curId == id) {
+    //   setCurId(id)
+    //   getSong(id)
+    //   getSongInfo(id)
       
-    }Taro.navigateTo({
+    // }
+    getSong(id)
+    getSongInfo(id)
+    
+    Taro.navigateTo({
         url: '/pages/player/index'
       })
 
@@ -63,10 +67,10 @@ function PlayList(props) {
   return (
     <View className='container'>
       <View className='banner'>
-        <Image className='banner-bg' src={playlist.coverImgUrl} />
+        <Image className='banner-bg' src={playlist.coverImgUrl as string} />
         <View className='info-area'>
           <View className='cover-wrapper'>
-            <Image src={playlist.coverImgUrl} className='cover-img' />
+            <Image src={playlist.coverImgUrl as string} className='cover-img' />
           </View>
           <View className='txt-info'>
             <Text className='info-name'>{playlist.name}</Text>
@@ -81,7 +85,7 @@ function PlayList(props) {
             return (
               <View
                 className='song-item'
-                onClick={() => enterSong(item.id)}>
+                onClick={() => enterPlayer(item.id)}>
                 <Text className='item-name'>{item.name}</Text>
               </View>
             )

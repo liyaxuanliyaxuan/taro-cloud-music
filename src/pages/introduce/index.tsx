@@ -1,3 +1,4 @@
+
 import Taro, { Component, Config, useEffect, useState, useLayoutEffect } from '@tarojs/taro'
 import { View, Button, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
@@ -42,10 +43,11 @@ function Introduce(props) {
 
 
   useEffect(() => {
+    //test getSongDetail
     getSongDetailRequest(347230).then(res=>console.log(res))
   }, [])
 
-  const enterSong = id =>{
+  const enterPlayer = id =>{
     getSong(id)
     getSongInfo(id)
     Taro.navigateTo({
@@ -59,11 +61,11 @@ function Introduce(props) {
   return (
     <View className='container'>
     <View className='banner'>
-      <Image className='banner-bg' src={artist.picUrl}/>
+      <Image className='banner-bg' src={artist.picUrl as string}/>
       
       <View className='info-area'>
       <View className='cover-wrapper'>
-        <Image src={artist.picUrl} className='cover-img'/>
+        <Image src={artist.picUrl as string} className='cover-img'/>
       </View>
       <View className='txt-info'>
       <Text className='info-name'>{artist.name}</Text>
@@ -79,7 +81,7 @@ function Introduce(props) {
        return(
          <View 
          className='song-item' 
-         onClick={()=>enterSong(item.id)}>
+         onClick={()=>enterPlayer(item.id)}>
            <Text className='item-name'>{item.name}</Text>
          </View>
        )

@@ -3,8 +3,7 @@ import Taro, { Component, Config, useEffect, useDidShow, useState, useRouter } f
 import { View, Button, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import { connect, useDispatch } from '@tarojs/redux'
 
-import {MiniPlayer} from '../../components/miniplayer'
-
+import {isEmptyObject} from '../../utils'
 import { AtButton, AtGrid } from "taro-ui"
 
 import './index.scss'
@@ -17,7 +16,8 @@ import * as playlistActionTypes from '../../actions/playlist'
 function mapStateToProps(state) {
   return {
     bannerList: state.recommendReducer.bannerList,
-    recommendList: state.recommendReducer.recommendList
+    recommendList: state.recommendReducer.recommendList,
+    audio: state.playerReducer.audio
   }
 }
 
@@ -40,8 +40,8 @@ function mapDispatchToProps(dispatch) {
 
 function Index(props) {
 
-  const { bannerList, recommendList, getBannerList, getRecommendList } = { ...props }
-  const { getPlaylist } = { ...props }
+  const { bannerList, recommendList, audio} = { ...props }
+  const { getPlaylist ,getBannerList, getRecommendList } = { ...props }
 
   const [showPlayer, setShowPlayer] = useState()
 
@@ -74,7 +74,7 @@ function Index(props) {
       >
         {bannerList.length && bannerList.map(item => {
           return (<SwiperItem className='swiper-item' key={item.targetId}>
-            <Image className={'banner-img'} src={item.imageUrl} ></Image>
+            <Image className={'banner-img'} src={item.imageUrl as string} ></Image>
           </SwiperItem>)
         })}
       </Swiper>
@@ -89,14 +89,15 @@ function Index(props) {
               key={item.id}
               className='grid-item'>
               <View className='cover-wrapper'>
-                <Image className='cover-img' src={item.picUrl} />
+                <Image className='cover-img' src={item.picUrl as string} />
               </View>
               <Text className='item-name'>{item.name}</Text>
             </View>)
           })
         }
       </View>
-      <MiniPlayer/>
+      {/* <MiniPlayer/> */}
+     
 
     </View>
   )

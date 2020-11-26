@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-11-15 16:07:17
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-16 21:08:08
+ * @LastEditTime: 2020-11-25 09:16:57
  */
 import { ComponentClass } from 'react'
 import Taro, { Component, Config, useEffect } from '@tarojs/taro'
@@ -21,7 +21,7 @@ function SingerList(props) {
               list && list.map((item) => {
                    return (
                        <View onClick={()=>handleClick(item.id)} className='singer-item'>
-                           <View className='pic-wrapper'><Image className='pic' src={item.picUrl}/></View>
+                           <View className='pic-wrapper'><Image className='pic' src={item.picUrl as string}/></View>
                            <Text className='singer-title'>{item.name}</Text>
                        </View>
                    )

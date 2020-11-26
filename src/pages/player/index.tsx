@@ -22,7 +22,7 @@ function mapStateToProps(state) {
     song: state.playerReducer.song,
     playlist: state.playlistReducer.playlist,
     songInfo: state.playerReducer.songInfo,
-   
+
   }
 }
 
@@ -52,19 +52,25 @@ function Player(props) {
   const { getSong, getLyric, getSongInfo, changeAudio } = { ...props }
 
   //在上级页面取得音频和info
-  // const songInfo = isEmptyObject(playlist) ? null : playlist.tracks.find(item => item.id == song.id)
+  //getSong && getSongInfo
+
+  //为了完成全局的音乐播放组件，尝试将音乐的audio实体挂载到Taro上
+  //尝试将音乐的audio对象挂载全局的状态中
 
   const [playState, setPlayState] = useState('paused')
   const [percent, setPercent] = useState(0)
   const [leftOffset, setLeftOffset] = useState(0)
   const progressRef = useRef()
+
   const audio = useMemo(() => {
-   let src = Audio({
+   const src = Audio({
       url: song.url,
       playcb: () => { console.log(song.url) }
     })
-    Taro.$audio = src
+    changeAudio(src)
     return src
+
+
   }, [song])
 
   //进入页面之后 song作为一个prop会进行重渲染
@@ -78,39 +84,40 @@ function Player(props) {
 
   useEffect(() => {
     song.id && getLyric(song.id)
-
-
+ 
     audio.onTimeUpdate(() => {
-      console.log('1')
+      console.log('playing')
       let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
-
       setPercent(newPercent)
       setLeftOffset(progressWidth * newPercent / 100)
     })
 
+
+
+
     console.log(songInfo);
-   // console.log(audio);
+    console.log(audio);
 
-    // return () => {
-    //   console.log('destroy');
-    //   audio && audio.destroy()
-    // }
-  }, [])
-  const ifFromMini  = useRouter().params
+    return () => {
+      console.log('destroy');
+      audio && audio.destroy()
+    }
+  }, [song])
+  //const ifFromMini  = useRouter().params
 
-  useDidShow(()=>{
+  useDidShow(() => {
     //页面显示
     //检测有无音频播放
     //有音频播放
-    console.log(ifFromMini)
-   
+    // console.log(ifFromMini)
 
-    //进度条在相应的位置
 
-    //有无携带参数
-    console.log(audio.currentTime)
+    // //进度条在相应的位置
 
-    const currentPosition = Taro.$audio.currentTime
+    // //有无携带参数
+    // console.log(audio.currentTime)
+
+    // const currentPosition = Taro.$audio.currentTime
 
 
 
@@ -119,7 +126,7 @@ function Player(props) {
   })
 
   useLayoutEffect(() => {
-    
+
 
   }, [])
 
@@ -128,7 +135,7 @@ function Player(props) {
       console.log(audio.currentTime)
       setTimeout(() => {
         audio.play()
-      }, 2000)
+      }, 1000)
       setPlayState('play')
     } else if (playState == 'play') {
       audio.pause()
@@ -149,7 +156,7 @@ function Player(props) {
   }
   const handleClick = (e) => {
     console.log(e)
-    
+
     if (playState == 'paused') {
       console.log(audio.currentTime)
       setTimeout(() => {
@@ -162,7 +169,7 @@ function Player(props) {
     //audio.seek()
     //setOffset()
 
-    setLeftOffset((Number(e.currentTarget.x) / progressWidth)*100)
+    setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
   }
 
 
@@ -172,14 +179,14 @@ function Player(props) {
   return (
     <View className='container'>
 
-      <Image className='player-bg' src={songInfo.al.picUrl}></Image>
+      <Image className='player-bg' src={songInfo.al.picUrl as string}></Image>
       <View className='song-title'>
         <Text className='song-name'>{songInfo.al.name}</Text>
         <Text className='writer-name'>{songInfo.ar[0].name}</Text>
       </View>
       <View className='center'>
         <View className='album-wrapper'>
-          <Image className='album-img' src={songInfo.al.picUrl} />
+          <Image className='album-img' src={songInfo.al.picUrl as string} />
         </View>
       </View>
       <View className='bottom'>
@@ -187,7 +194,7 @@ function Player(props) {
           <View className='progress-area'>
 
             <MovableArea
-            onClick={handleClick}
+              onClick={handleClick}
               className='progress-wrapper'>
               <MovableView
                 onHTouchMove={handleMove}
@@ -197,8 +204,8 @@ function Player(props) {
                 direction='horizontal'>
 
               </MovableView>
-              <View 
-              className='progress-click' 
+              <View
+                className='progress-click'
               >
                 <AtProgress
 
@@ -209,8 +216,6 @@ function Player(props) {
                   isHidePercent={true}
                   strokeWidth={4} />
               </View>
-
-
 
             </MovableArea>
 

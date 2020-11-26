@@ -16,7 +16,7 @@ export const GlobalList = (props)=> {
       {
          list && list.map(item=>(<View onClick={()=>handleClick(item.id)} className='global-item'>
               <View className='img-wrapper'>
-                  <Image className='cover' src={item.coverImgUrl}></Image>
+                  <Image className='cover' src={item.coverImgUrl as string}></Image>
               </View>
           </View>))
       }  
