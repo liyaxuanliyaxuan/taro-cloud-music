@@ -7,10 +7,11 @@ import Taro, {
 import { View, Button, Text, MovableArea, MovableView, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
-
+import  LyricList from '../../components/liricList'
 import { AtButton, AtProgress } from "taro-ui"
 
 import Audio from '../../api/audio'
+import { initLines } from '../../utils/lyricParse'
 
 import './index.scss'
 
@@ -22,6 +23,7 @@ function mapStateToProps(state) {
     song: state.playerReducer.song,
     playlist: state.playlistReducer.playlist,
     songInfo: state.playerReducer.songInfo,
+    lyric: state.playerReducer.lyric
 
   }
 }
@@ -48,7 +50,7 @@ function mapDispatchToProps(dispatch) {
 
 function Player(props) {
 
-  const { song, playlist, songInfo } = { ...props }
+  const { song, playlist, songInfo, lyric } = { ...props }
   const { getSong, getLyric, getSongInfo, changeAudio } = { ...props }
 
   //在上级页面取得音频和info
@@ -60,6 +62,8 @@ function Player(props) {
   const [playState, setPlayState] = useState('paused')
   const [percent, setPercent] = useState(0)
   const [leftOffset, setLeftOffset] = useState(0)
+  const [showLyric, setShowLyric] = useState(false)
+  const [scrollTop, setScrollTop] = useState(0)
   const progressRef = useRef()
 
   const audio = useMemo(() => {
@@ -69,8 +73,6 @@ function Player(props) {
     })
     changeAudio(src)
     return src
-
-
   }, [song])
 
   //进入页面之后 song作为一个prop会进行重渲染
@@ -81,14 +83,20 @@ function Player(props) {
     return res.screenWidth * 0.8
 
   }, [song])
+  const lyricAreaHeight = useMemo(() => {
+    const res = Taro.getSystemInfoSync()
+    return res.screenHeight * 0.6
 
-  useEffect(() => {
-    song.id && getLyric(song.id)
- 
+  }, [song])
+
+   useEffect(() => {
+    song.id &&  getLyric(song.id)
+   
     audio.onTimeUpdate(() => {
       console.log('playing')
       let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
       setPercent(newPercent)
+      setScrollTop(lyricAreaHeight * newPercent / 100)
       setLeftOffset(progressWidth * newPercent / 100)
     })
 
@@ -104,6 +112,15 @@ function Player(props) {
     }
   }, [song])
   //const ifFromMini  = useRouter().params
+  //巧妙使用useEffect异步从store里面取得最新的lyric
+  useEffect(()=>{
+    console.log(lyric);
+    
+    console.log(initLines(lyric))
+  },[lyric])
+  const lyricList = useMemo(()=>{
+    return initLines(lyric)
+  },[lyric])
 
   useDidShow(() => {
     //页面显示
@@ -119,14 +136,12 @@ function Player(props) {
 
     // const currentPosition = Taro.$audio.currentTime
 
-
-
     //当前播放的位置
     //当前的状态
   })
 
   useLayoutEffect(() => {
-
+    
 
   }, [])
 
@@ -154,7 +169,7 @@ function Player(props) {
 
 
   }
-  const handleClick = (e) => {
+  const handleClickProgress = (e) => {
     console.log(e)
 
     if (playState == 'paused') {
@@ -172,6 +187,10 @@ function Player(props) {
     setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
   }
 
+  const handleSwitchCover = () =>{
+    setShowLyric(()=>!showLyric)
+  }
+
 
 
 
@@ -184,23 +203,24 @@ function Player(props) {
         <Text className='song-name'>{songInfo.al.name}</Text>
         <Text className='writer-name'>{songInfo.ar[0].name}</Text>
       </View>
-      <View className='center'>
-        <View className='album-wrapper'>
+      <View className='center' onClick={handleSwitchCover}>
+        {
+          showLyric?<LyricList list={lyricList} top={scrollTop}/>:<View className='album-wrapper'>
           <Image className='album-img' src={songInfo.al.picUrl as string} />
         </View>
+        }
       </View>
       <View className='bottom'>
         <View className='player-area'>
           <View className='progress-area'>
 
             <MovableArea
-              onClick={handleClick}
+              onClick={handleClickProgress}
               className='progress-wrapper'>
               <MovableView
                 onHTouchMove={handleMove}
                 x={leftOffset}
                 className='move-circle'
-
                 direction='horizontal'>
 
               </MovableView>
@@ -208,9 +228,7 @@ function Player(props) {
                 className='progress-click'
               >
                 <AtProgress
-
                   className='progress'
-
                   color="#FF4949"
                   percent={percent}
                   isHidePercent={true}

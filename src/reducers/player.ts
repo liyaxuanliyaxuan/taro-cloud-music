@@ -1,13 +1,13 @@
 /*
  * @Date: 2020-11-15 21:47:08
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-19 19:15:14
+ * @LastEditTime: 2020-11-27 12:28:13
  */
 import * as actionTypes from '../constants/player'
 
 const INITIAL_STATE = {
   song:{},//音频
-  lyric:[],
+  lyric:'',
   songInfo:{},
 
   audio:{}//播放的音频实体
