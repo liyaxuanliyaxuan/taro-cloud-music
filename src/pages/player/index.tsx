@@ -7,11 +7,12 @@ import Taro, {
 import { View, Button, Text, MovableArea, MovableView, Image } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
-import  LyricList from '../../components/liricList'
+import LyricList from '../../components/liricList'
 import { AtButton, AtProgress } from "taro-ui"
 
 import Audio from '../../api/audio'
 import { initLines } from '../../utils/lyricParse'
+import { debounce } from '../../utils'
 
 import './index.scss'
 
@@ -64,10 +65,11 @@ function Player(props) {
   const [leftOffset, setLeftOffset] = useState(0)
   const [showLyric, setShowLyric] = useState(false)
   const [scrollTop, setScrollTop] = useState(0)
+  const [swiperTimer, setSwiperTimer] = useState(null)
   const progressRef = useRef()
 
   const audio = useMemo(() => {
-   const src = Audio({
+    const src = Audio({
       url: song.url,
       playcb: () => { console.log(song.url) }
     })
@@ -89,9 +91,9 @@ function Player(props) {
 
   }, [song])
 
-   useEffect(() => {
-    song.id &&  getLyric(song.id)
-   
+  useEffect(() => {
+    song.id && getLyric(song.id)
+
     audio.onTimeUpdate(() => {
       console.log('playing')
       let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
@@ -99,9 +101,6 @@ function Player(props) {
       setScrollTop(lyricAreaHeight * newPercent / 100)
       setLeftOffset(progressWidth * newPercent / 100)
     })
-
-
-
 
     console.log(songInfo);
     console.log(audio);
@@ -113,14 +112,14 @@ function Player(props) {
   }, [song])
   //const ifFromMini  = useRouter().params
   //巧妙使用useEffect异步从store里面取得最新的lyric
-  useEffect(()=>{
+  useEffect(() => {
     console.log(lyric);
-    
+
     console.log(initLines(lyric))
-  },[lyric])
-  const lyricList = useMemo(()=>{
+  }, [lyric])
+  const lyricList = useMemo(() => {
     return initLines(lyric)
-  },[lyric])
+  }, [lyric])
 
   useDidShow(() => {
     //页面显示
@@ -141,7 +140,7 @@ function Player(props) {
   })
 
   useLayoutEffect(() => {
-    
+
 
   }, [])
 
@@ -158,37 +157,66 @@ function Player(props) {
     }
   }
 
+
   const handleMove = (e) => {
     console.log(e)
     //进度条
 
     //音频进度
     //防抖
-    audio.seek(Number(audio.duration) * (Number(e.touches[0].clientX) / progressWidth))
 
 
+    audio
+      .seek(Number(audio.duration) * (Number(e.touches[0].clientX) / progressWidth))
 
   }
   const handleClickProgress = (e) => {
     console.log(e)
-
+    const promise = (PlayFun) =>
+      new Promise((resolve, reject) => {
+        PlayFun()
+        setTimeout(() => { 
+          resolve()
+        }, 2000)
+      }
+      )
+//第一次点击进度条play
+//进度条的长度和点击点的位置不准确
     if (playState == 'paused') {
       console.log(audio.currentTime)
-      setTimeout(() => {
-        audio.play()
-      }, 1000)
-      setPlayState('play')
-    }
-    audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
-    audio.play()
-    //audio.seek()
-    //setOffset()
+      // setTimeout(()=>{
+      //   audio.play()
+      // },1000)
+      //audio.play()
+      promise(() => {
+     
+          audio.play()
+      
+      })
+        .then(() => {
 
-    setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
+          audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
+          setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
+
+        })
+  
+
+
+      setPlayState('play')
+    } else {
+      audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
+      setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
+
+    }
+    // audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
+
+    //setOffset()
+    // setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
+    //audio.play()
   }
 
-  const handleSwitchCover = () =>{
-    setShowLyric(()=>!showLyric)
+  const handleSwitchCover = () => {
+    setShowLyric(() => !showLyric)
   }
 
 
@@ -205,9 +233,9 @@ function Player(props) {
       </View>
       <View className='center' onClick={handleSwitchCover}>
         {
-          showLyric?<LyricList list={lyricList} top={scrollTop}/>:<View className='album-wrapper'>
-          <Image className='album-img' src={songInfo.al.picUrl as string} />
-        </View>
+          showLyric ? <LyricList list={lyricList} top={scrollTop} /> : <View className='album-wrapper'>
+            <Image className='album-img' src={songInfo.al.picUrl as string} />
+          </View>
         }
       </View>
       <View className='bottom'>

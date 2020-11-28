@@ -2,7 +2,8 @@
     width: 100vw;
     height: 60vh;
     overflow: hidden;
-    margin: 50px 20px 20px 40px;
+    box-sizing: border-box;
+    padding: 50px 20px 30px 20px;
     .lyric-list{
         display: flex;
         flex-direction: column;
@@ -12,9 +13,9 @@
         overflow: hidden;
      
         .lyric-line{
-            font-size: 24px;
+            font-size: 28px;
             color: #ffffff;
-            line-height: 2;
+            line-height: 4;
         }
     }
 }

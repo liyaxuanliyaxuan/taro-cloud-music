@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-11-15 19:04:25
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-16 09:54:33
+ * @LastEditTime: 2020-11-28 20:25:16
  */
 import {RankTypes} from '../api/constant'
  
@@ -23,3 +23,18 @@ export const filterIndex = rankList => {
   };
 
   export const isEmptyObject = obj => !obj || Object.keys (obj).length === 0;
+
+  //防抖
+  export function debounce(fn, delay){
+    let timer = null
+    return function(){
+      let ctx = this
+      let args = arguments
+      if(timer){
+        clearTimeout(timer)
+      }
+      timer = setTimeout(()=>{
+        fn.call(ctx, args)
+      }, delay)
+    }
+  }

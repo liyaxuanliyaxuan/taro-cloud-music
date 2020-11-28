@@ -5,6 +5,8 @@ import { connect } from '@tarojs/redux'
 
 
 import './index.scss'
+import Loading from '../../components/loading'
+
 import { OfficialList} from '../../components/officialList'
 import { GlobalList } from '../../components/globalList'
 
@@ -20,7 +22,8 @@ import * as playlistActionTypes from '../../actions/playlist'
 
 function mapStateToProps(state) {
   return {
-    rankList: state.rankReducer.rankList
+    rankList: state.rankReducer.rankList,
+    loading: state.rankReducer.loading
   }
 }
 
@@ -31,6 +34,9 @@ function mapDispatchToProps(dispatch) {
     },
     getPlaylist(id) {
       dispatch(playlistActionTypes.getPlaylist(id))
+    },
+    changeLoading() {
+      dispatch(rankActionTypes.changeLoading(true))
     }
   }
 }
@@ -39,14 +45,15 @@ function mapDispatchToProps(dispatch) {
 
 
 function Album(props) {
-  const { rankList } = { ...props }
-  const { getRankList, getPlaylist } = { ...props }
+  const { rankList, loading } = { ...props }
+  const { getRankList, getPlaylist, changeLoading } = { ...props }
 
   const [officialList, setOfficialList] = useState()
   const [globalList, setGolbalList] = useState()
   const [showPlayer, setShowPlayer] = useState()
 
   useEffect(() => {
+    changeLoading(true)
     getRankList()
     let globalStartIndex = filterIndex(rankList);
     setOfficialList(rankList.slice(0, globalStartIndex))
@@ -70,14 +77,17 @@ function Album(props) {
     <View className='container'>
     <View className='official-rank'>
       <Text className='rank-title'>官方榜</Text>
-      {rankList && <OfficialList list={officialList} handleClick={enterDetail}/>}
+      {
+        loading?<Loading/>:<OfficialList list={officialList} handleClick={enterDetail}/>
+      }
+      
     </View>
     <View className='global-rank'>
       <Text className='rank-title'>全球榜</Text>
-      <GlobalList list={globalList} handleClick={enterDetail}/>
+      {
+        loading?<Loading/>:<GlobalList list={globalList} handleClick={enterDetail}/>
+      }
     </View>
-   
-
   </View>
   )
 }
