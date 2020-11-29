@@ -39,11 +39,8 @@
           margin-left: 20px;
           display: flex;
           flex-direction: column;
-          width: 40vw;
-          height: 280px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          line-height: 2;
+          width: 50vw;
+        
   
   
           .info-name {
@@ -52,13 +49,17 @@
               overflow: hidden;
               text-overflow: ellipsis;
           }
-  
+          $detailFontSize:24px;
+          $detailLineHeight: 1.5;
           .info-detail {
               margin-top: 20px;
               color: #E6E6E6;
               font-size: 24px;
               overflow: hidden;
               text-overflow: ellipsis;
+              line-height: $detailLineHeight;
+              height: $detailFontSize * $detailLineHeight * 10;
+              position: relative;
           }
       }
       }

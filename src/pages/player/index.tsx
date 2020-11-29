@@ -24,8 +24,9 @@ function mapStateToProps(state) {
     song: state.playerReducer.song,
     playlist: state.playlistReducer.playlist,
     songInfo: state.playerReducer.songInfo,
-    lyric: state.playerReducer.lyric
-
+    lyric: state.playerReducer.lyric,
+    curSongId: state.playerReducer.curSongId,
+    songIdList: state.playerReducer.songIdList
   }
 }
 
@@ -42,6 +43,12 @@ function mapDispatchToProps(dispatch) {
     },
     changeAudio(data) {
       dispatch(playerActionTypes.changeAudio(data))
+    },
+    changeSongIdList(list) {
+      dispatch(playerActionTypes.changeSongIdList(list))
+    },
+    changeCurSongId(id) {
+      dispatch(playerActionTypes.changeCurSongId(id))
     }
   }
 }
@@ -51,8 +58,8 @@ function mapDispatchToProps(dispatch) {
 
 function Player(props) {
 
-  const { song, playlist, songInfo, lyric } = { ...props }
-  const { getSong, getLyric, getSongInfo, changeAudio } = { ...props }
+  const { song, playlist, songInfo, lyric, curSongId, songIdList } = { ...props }
+  const { getSong, getLyric, getSongInfo, changeAudio, changeSongIdList, changeCurSongId } = { ...props }
 
   //在上级页面取得音频和info
   //getSong && getSongInfo
@@ -69,16 +76,25 @@ function Player(props) {
   const progressRef = useRef()
 
   const audio = useMemo(() => {
-    const src = Audio({
-      url: song.url,
-      playcb: () => { console.log(song.url) }
-    })
-    changeAudio(src)
-    return src
+    if (Taro.$audio) {
+      Taro.$audio.destroy()
+    }
+
+    if (song.url) {
+      const src = Audio({
+        url: song.url,
+        playcb: () => { console.log(song.url) }
+      })
+      changeAudio(src)
+      Taro.$audio = src
+      return src
+    }
+    
   }, [song])
 
   //进入页面之后 song作为一个prop会进行重渲染
   //song这个对象全部发生改变
+  //进入页面自动播放
 
   const progressWidth = useMemo(() => {
     const res = Taro.getSystemInfoSync()
@@ -90,11 +106,11 @@ function Player(props) {
     return res.screenHeight * 0.6
 
   }, [song])
-
+  
   useEffect(() => {
     song.id && getLyric(song.id)
 
-    audio.onTimeUpdate(() => {
+    audio && audio.onTimeUpdate(() => {
       console.log('playing')
       let newPercent = Math.floor(audio.currentTime / Number(audio.duration) * 100)
       setPercent(newPercent)
@@ -102,54 +118,32 @@ function Player(props) {
       setLeftOffset(progressWidth * newPercent / 100)
     })
 
-    console.log(songInfo);
-    console.log(audio);
-
-    return () => {
-      console.log('destroy');
-      audio && audio.destroy()
-    }
+    // return () => {
+    //   console.log('destroy');
+    //   audio && audio.destroy()
+    // }
   }, [song])
   //const ifFromMini  = useRouter().params
   //巧妙使用useEffect异步从store里面取得最新的lyric
-  useEffect(() => {
-    console.log(lyric);
+  // useEffect(() => {
+  //   console.log(lyric);
 
-    console.log(initLines(lyric))
-  }, [lyric])
+  //   console.log(initLines(lyric))
+  // }, [lyric])
   const lyricList = useMemo(() => {
     return initLines(lyric)
   }, [lyric])
 
   useDidShow(() => {
-    //页面显示
-    //检测有无音频播放
-    //有音频播放
-    // console.log(ifFromMini)
-
-
-    // //进度条在相应的位置
-
-    // //有无携带参数
-    // console.log(audio.currentTime)
-
-    // const currentPosition = Taro.$audio.currentTime
-
-    //当前播放的位置
-    //当前的状态
+ 
   })
-
-  useLayoutEffect(() => {
-
-
-  }, [])
 
   const handlePaused = () => {
     if (playState == 'paused') {
       console.log(audio.currentTime)
       setTimeout(() => {
         audio.play()
-      }, 1000)
+       }, 1000)
       setPlayState('play')
     } else if (playState == 'play') {
       audio.pause()
@@ -159,29 +153,27 @@ function Player(props) {
 
 
   const handleMove = (e) => {
-    console.log(e)
+ 
     //进度条
 
     //音频进度
     //防抖
-
-
     audio
       .seek(Number(audio.duration) * (Number(e.touches[0].clientX) / progressWidth))
 
   }
   const handleClickProgress = (e) => {
-    console.log(e)
+    
     const promise = (PlayFun) =>
       new Promise((resolve, reject) => {
         PlayFun()
-        setTimeout(() => { 
+        setTimeout(() => {
           resolve()
         }, 2000)
       }
       )
-//第一次点击进度条play
-//进度条的长度和点击点的位置不准确
+    //第一次点击进度条play
+    //进度条的长度和点击点的位置不准确
     if (playState == 'paused') {
       console.log(audio.currentTime)
       // setTimeout(()=>{
@@ -189,17 +181,15 @@ function Player(props) {
       // },1000)
       //audio.play()
       promise(() => {
-     
-          audio.play()
-      
+
+        audio.play()
+
       })
         .then(() => {
-
           audio.seek(Number(audio.duration) * (Number(e.currentTarget.x) / progressWidth))
           setLeftOffset((Number(e.currentTarget.x) / progressWidth) * 100)
-
         })
-  
+
 
 
       setPlayState('play')
@@ -217,6 +207,26 @@ function Player(props) {
 
   const handleSwitchCover = () => {
     setShowLyric(() => !showLyric)
+  }
+
+  const handelSwitchPrevSong = () => {
+    let id = Math.max(songIdList.findIndex((val)=>val == curSongId)-1, 0)
+    changeCurSongId(songIdList[id])
+    getSong(songIdList[id])
+    getSongInfo(songIdList[id])
+    Taro.redirectTo({
+      url:'/pages/player/index'
+    })
+  }
+
+  const handelSwitchNextSong = () => {
+    let id = Math.min(songIdList.findIndex((val)=>val == curSongId)+1, songIdList.length-1)
+    changeCurSongId(songIdList[id])
+    getSong(songIdList[id])
+    getSongInfo(songIdList[id])
+    Taro.redirectTo({
+      url:'/pages/player/index'
+    })
   }
 
 
@@ -267,11 +277,15 @@ function Player(props) {
 
           </View>
           <View className='btn-area'>
-            <Text className='iconfont prev'>&#xe655;</Text>
+            <Text 
+            onClick={handelSwitchPrevSong}
+            className='iconfont prev'>&#xe655;</Text>
             {playState == 'paused' ? <Text className='iconfont play' onClick={handlePaused}>&#xe80f;</Text> :
               <Text className='iconfont paused' onClick={handlePaused}>&#xe7d2;</Text>}
 
-            <Text className='iconfont next'>&#xe654;</Text>
+            <Text 
+            onClick={handelSwitchNextSong}
+            className='iconfont next'>&#xe654;</Text>
           </View>
         </View>
       </View>

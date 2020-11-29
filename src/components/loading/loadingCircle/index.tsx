@@ -4,12 +4,12 @@ import { View, Text, ScrollView } from '@tarojs/components'
 
 import './index.scss'
 
-function Loading(props) {
-   return <View class="spinner">
-  <View class="double-bounce1"></View>
-  <View class="double-bounce2"></View>
+function LoadingCircle(props) {
+   return <View className="spinner">
+  <View className="double-bounce1"></View>
+  <View className="double-bounce2"></View>
 </View>
    
 }
 
-export default Loading
+export default LoadingCircle

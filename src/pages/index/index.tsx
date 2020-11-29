@@ -8,7 +8,7 @@ import { AtButton, AtGrid } from "taro-ui"
 
 import './index.scss'
 
-
+import MiniPlayer  from '../../components/miniplayer'
 import * as recommendActionTypes from '../../actions/recommend'
 import * as playlistActionTypes from '../../actions/playlist'
 
@@ -59,7 +59,12 @@ function Index(props) {
     })
   }
   useDidShow(() => {
-    
+    console.log(Taro.$audio);
+    if(Taro.$audio){
+      setShowPlayer(true)
+    }else{
+      setShowPlayer(false)
+    }
   })
 
 
@@ -96,9 +101,10 @@ function Index(props) {
           })
         }
       </View>
-      {/* <MiniPlayer/> */}
-     
-
+      {
+        showPlayer?<MiniPlayer handelCancel={()=>setShowPlayer(false)}/>:null
+      }
+      
     </View>
   )
 

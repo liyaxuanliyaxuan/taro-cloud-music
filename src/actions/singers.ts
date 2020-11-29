@@ -1,7 +1,7 @@
 /*
  * @Date: 2020-11-15 16:03:34
  * @LastEditors: Vera
- * @LastEditTime: 2020-11-15 16:53:52
+ * @LastEditTime: 2020-11-29 17:15:07
  */
 import * as actionTypes from '../constants/singers'
 import {getHotSingerListRequest, getSingerListRequest} from '../api/service'
@@ -25,6 +25,7 @@ export const getInitHotSingerList = ()=>{
         getHotSingerListRequest(0).then(res=>{
             let data = res.artists
             dispatch(changeSingerList(data))
+            dispatch(changeLoading(false))
 
         }).catch(err=>console.log(err))
     }
@@ -35,10 +36,13 @@ export const getMoreHotSingerList = ()=>{
     }
 }
 
+//手动选择
 export const getInitSingerList = (category, alpha)=>{
     return (dispatch, getState)=>{
+        dispatch(changeLoading(true))
         getSingerListRequest(category, alpha, 0).then(res=>{
             let data = res.artists
+            dispatch(changeLoading(false))
             dispatch(changeSingerList(data))
             dispatch(changePageCount(0))
         }).catch(err=>console.log(err))
@@ -50,3 +54,8 @@ export const getMoreSingerList = (category, alpha)=>{
         //getSingerListRequest(category, alpha, )
     }
 }
+
+export const changeLoading = (data)=>({
+    type: actionTypes.CHNEG_LOADING,
+    data
+})

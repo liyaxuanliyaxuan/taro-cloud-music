@@ -5,8 +5,7 @@ import { connect } from '@tarojs/redux'
 
 
 import './index.scss'
-import Loading from '../../components/loading'
-
+import LoadingCircle from '../../components/loading/loadingCircle'
 import { OfficialList} from '../../components/officialList'
 import { GlobalList } from '../../components/globalList'
 
@@ -85,7 +84,7 @@ function Album(props) {
     <View className='global-rank'>
       <Text className='rank-title'>全球榜</Text>
       {
-        loading?<Loading/>:<GlobalList list={globalList} handleClick={enterDetail}/>
+        loading?<LoadingCircle/>:<GlobalList list={globalList} handleClick={enterDetail}/>
       }
     </View>
   </View>

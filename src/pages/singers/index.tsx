@@ -4,6 +4,7 @@ import { View, Button, Text } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 
 import {AtButton} from 'taro-ui'
+import loadingLines from '../../components/loading/loadingLines'
 import './index.scss'
 
 
@@ -13,26 +14,31 @@ import * as introduceActionTypes from '../../actions/introduce'
 import { categoryTypes, alphaTypes} from '../../api/constant'
 import SelectedBar from '../../components/selectedBar'
 import SingerList from '../../components/singerList'
+import LoadingLine from '../../components/loading/loadingLines'
 
 
 
 function mapStateToProps(state){
   return {
     singerList: state.singerReducer.singerList,
-    pageCount: state.singerReducer.pageCount
+    pageCount: state.singerReducer.pageCount,
+    loading: state.singerReducer.loading
   }
 }
 
 function mapDispatchToProps(dispatch){
   return {
-    // getInitSingerList(category, alpha){
-    //   dispatch(singerActionTypes.getInitSingerList(category, alpha))
-    // },
+    getInitSingerList(category, alpha){
+      dispatch(singerActionTypes.getInitSingerList(category, alpha))
+    },
     getInitHotSingerList(){
       dispatch(singerActionTypes.getInitHotSingerList())
     },
     getSingerSong(id){
       dispatch(introduceActionTypes.getSingerSong(id))
+    },
+    changeLoading(val){
+      dispatch(singerActionTypes.changeLoading(val))
     }
   }
 }
@@ -41,8 +47,8 @@ function mapDispatchToProps(dispatch){
 
 
 function Singers(props){
-  const {singerList,  pageCount} = {...props}
-  const {getInitHotSingerList, getSingerSong} ={...props}
+  const {singerList,  pageCount, loading} = {...props}
+  const {getInitHotSingerList, getSingerSong, changeLoading, getInitSingerList} ={...props}
 
   const [category, setCategory] = useState()
   const [alpha, setAlpha] = useState()
@@ -55,8 +61,18 @@ function Singers(props){
   }
 
   useEffect(()=>{
+    
     getInitHotSingerList()   
   },[])
+
+
+  useEffect(()=>{
+    if(alpha && category){
+      getInitSingerList(category, alpha)
+    }
+  },[alpha, category])
+
+
   return <View className='container'>
     <SelectedBar 
 
@@ -72,7 +88,7 @@ function Singers(props){
     list={alphaTypes}
     handleClick={val=>setAlpha(val)}
     />
-    <SingerList handleClick={enterIntroduce} list={singerList}/>
+    {loading? <LoadingLine/>:<SingerList handleClick={enterIntroduce} list={singerList}/>}
  
   </View>
 }
